@@ -3,36 +3,45 @@
 /*                                                        :::      ::::::::   */
 /*   server.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mbass <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: mbass <@student.21-school.ru>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 17:54:07 by mbass             #+#    #+#             */
-/*   Updated: 2022/03/09 17:54:09 by mbass            ###   ########.fr       */
+/*   Updated: 2022/03/11 19:53:52 by mbass            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-void    if_error(int pid, char *str)
+void	handler(int msg)
 {
-    if (str)
-        free(str);
-    ft_putstr_fd("server: well, its fucked\n", 2);
-    kill(pid, SIGUSR2);
-    exit(EXIT_FAILURE);
-}
+    static char c;
+    static int  i;
 
-void    *print_message(char *str)
-{
-    ft_putstr_fd(str,1);
-    free(str);
-    return (NULL);
+    i = 0;
+    c = 0;
+
+    if (msg == SIGUSR1)
+        c += 1 << i;
+    i++;
+    if (i == 8)
+    {
+        if (c == '\0')
+            ft_putchar_fd('\n', 1);
+        else
+            ft_putchar_fd(c, 1);
+        i = 0;
+        c = 0;
+    }
 }
 
 int main(void)
 {
+    pid_t	pid = getpid();
     ft_putstr_fd("Server PID: ", 1);
-    ft_putnbr_fd(getpid(),1);
-    ft_putchar_fd('\n', 1);
-
-
+    ft_putnbr_fd(pid, 1);
+    write(1, "\n", 1);
+    signal(SIGUSR1, handler);
+    signal(SIGUSR2, handler);
+    while (1);
+    return (0);
 }
